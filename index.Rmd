@@ -1,0 +1,270 @@
+---
+title: "Á hverju liggja ekki vorar kellíngar"
+author: "Valtýr Sigurðsson"
+email: "valtyr@nnv.is"
+date: "einhverntíman á árunum, 2021-22"
+length: "10+5 minutes (including Q+A)"
+pdflink: "Valtyr_erindi.pdf"
+department: "Náttúrustofa Norðurlands vestra"
+output:
+  xaringan::moon_reader:
+    css:
+      - ninjutsu 
+      - "assets/font-awesome-all.css"
+      - "assets/tachyons-addon.css"
+      - "assets/animate.css"
+      - "assets/fira-code.css"
+      - "assets/boxes.css"
+      - "assets/table.css"
+      - "assets/styles.css"
+      - "assets/monash-brand.css"
+      - "assets/monash-fonts.css"
+      - "assets/slide-types.css"
+      - "assets/panelset-modified.css"
+      - "assets/scroll.css"
+      - "assets/custom.css"
+    self_contained: false 
+    seal: false 
+    chakra: 'lib/remark-latest.min.js'
+    includes:
+      in_header: "assets/head.html"
+    lib_dir: lib
+    #includes:
+    #  in_header: "assets/custom.html"
+    mathjax: "lib/mathjax-local/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
+    nature:
+      highlightStyle: magula
+      highlightLanguage: r 
+      highlightLines: true
+      highlightSpans: false 
+      countIncrementalSlides: false
+      slideNumberFormat: '%current%/%total%'
+      navigation:
+        scroll: false 
+        touch: true
+        click: false
+      ratio: '16:9'
+---
+```{r, include = FALSE}
+current_file <- knitr::current_input()
+basename <- gsub(".Rmd$", "", current_file)
+
+knitr::opts_chunk$set(
+  fig.path = "myndir/",
+  fig.width = 6,
+  fig.height = 4,
+  fig.align = "center",
+  fig.retina = 2,
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  cache = TRUE,
+  cache.path = "cache/"
+)
+```
+
+class: middle center hide-slide-number monash-bg-gray80
+
+
+```{r, include = FALSE}
+library(tidyverse)
+library(colorspace)
+library(nullabor)
+library(ggplot2)
+basename <- ifelse(exists("basename"), basename, "slide")
+pdflink <- rmarkdown::metadata$pdflink
+titlebgimg <- ifelse(is.null(rmarkdown::metadata$titlebgimg),
+                     "myndir/bg-01.png",
+                     rmarkdown::metadata$titlebgimg)
+```
+
+
+.info-box.w-50.bg-white.f3[
+Best er að skoða þessar slæður í Chrome eða Firefox. Hugsanlega þarf að endurræsa (ctrl+R) ef þær standa eitthvað á sér. Sjá hér <a href=`r pdflink`>fyrir PDF <i class="fas fa-file-pdf"></i></a>. 
+]
+
+<br>
+
+.white[Ýtið **til hægri** til að sjá næstu slæðu]
+
+
+
+---
+
+count: false
+class: title-slide
+background-image: url("`r titlebgimg`")
+
+.w-85[
+# .f1[`r rmarkdown::metadata$title`]
+]
+
+<br>
+
+<h2 style="font-weight:900!important;">`r rmarkdown::metadata$subtitle`</h2>
+
+.bottom_abs.width100[
+
+Fyrirlesari: *`r rmarkdown::metadata$author`*
+
+.f3[
+`r rmarkdown::metadata$department`
+
+
+
+<i class="fas fa-calendar-alt"></i> `r rmarkdown::metadata$date`
+
+<br>
+
+]]
+
+
+---
+
+
+
+class: transition 
+
+# Inngangur <br> 
+#.yellow[Staðan á gögnum]
+
+
+---
+
+# .yellow[Endurheimt gagna] <i class="fas fa-file-alt"></i> Könnun á tilvist gagna úr birtum greinum .f4[Hluti 1]
+
+.flex.h-100[
+.w-60[
+
+*  516 greinar - útgefnar á 20 ára tímabili
+
+]
+.w-40[
+![](https://c.tenor.com/sUbHakwftcYAAAAC/no-time-busy.gif)
+
+]]
+
+
+---
+
+# .yellow[Endurheimt gagna] <i class="fas fa-file-alt"></i> Könnun á tilvist gagna úr birtum greinum .f4[Hluti 1]
+
+.flex.h-100[
+.w-60[
+
+*  516 greinar - útgefnar á 20 ára tímabili
+*  Líkur á tilvist gagna minnkuðu um 17% á ári
+
+
+{{content}}
+
+]
+.w-40[
+
+
+```{r, include = FALSE}
+#the below are needed for plotting Figure 1A
+read.table("docs/vines2014/CurrentBiologyData.txt", header = T)
+CB.dat$age <- 2013 - CB.dat$year
+CB.dat$email <- replace(CB.dat$no_emails_worked, which(CB.dat$no_emails_worked == 0), "yes")
+CB.dat$email <- replace(CB.dat$email, which(CB.dat$no_emails_worked == 1), "no")
+CB.dat$email <- factor(CB.dat$email)
+em1 <- glm(email ~ age, data = CB.dat, family = "binomial")
+# this is a list of numbers running between 2 and 22
+newdata.em <- data.frame(age = seq(2, 22, 0.1))
+#this is the fitted line
+newdata.em$phat <- predict(em1, newdata.em, type = "response")
+#this generates the 95% confidence interval band
+newdata.em <- cbind(newdata.em, predict(em1, newdata.em, type = "response", se.fit = TRUE))
+newdata.em <- within(newdata.em, {
+  LL <- fit - 1.96*se.fit
+  UL <- fit + 1.96*se.fit
+})
+ew1 <- glm(number_emails_paper ~ age, data = CB.dat, family = "poisson")
+summary(ew1)
+newdata.ew1 <- data.frame(age = seq(min(CB.dat$age), max(CB.dat$age), length.out=516))
+newdata.ew1$phat <- predict(ew1, newdata.ew1, type = "response")
+newdata.ew1 <- cbind(newdata.ew1, predict(ew1, newdata.ew1, type = "response", se.fit = TRUE))
+newdata.ew1 <- within(newdata.ew1, {
+  LL <- fit - 1.96*se.fit
+  UL <- fit + 1.96*se.fit
+})
+props.ew1 <- tapply(CB.dat$number_emails_paper, factor(CB.dat$age), mean, na.rm=TRUE)
+pred.props.ew1 <- data.frame(ages = seq(2, 22, 2), props.ew1 = props.ew1)
+
+CB.through <- CB.dat[CB.dat$email == "yes", ]
+
+#as above, we need to reverse 'no_response' so that getting a response is a '1'
+
+CB.through$response <- CB.through$no_response
+CB.through$response <- replace(CB.through$response, which(CB.through$response == 1), "no")
+CB.through$response <- replace(CB.through$response, which(CB.through$response == 0), "yes")
+CB.through$response <- factor(CB.through$response)
+CB.use <- CB.through[which(CB.through$response == "yes"), ]
+
+CB.use$response_no_help
+CB.use$help <- CB.use$response_no_help
+CB.use$help <- replace(CB.use$help, which(CB.use$help == 1), "no")
+CB.use$help <- replace(CB.use$help, which(CB.use$help == 0), "yes")
+CB.use$help <- factor(CB.use$help)
+CB.extant <- CB.use[which(CB.use$help == "yes"), ]
+names(CB.extant)
+ # [1] "paper"                       "year"                        "no_emails_worked"            "no_response"                
+ # [5] "response_no_help"            "data_lost"                   "cant_share"                  "data_received"              
+ # [9] "number_emails_paper"         "number_emails_web"           "number_bounced_paper_emails" "number_bounced_web_emails"  
+# [13] "email"                       "age"                         "response"                    "help"   
+
+summary(factor(CB.extant$data_received))
+  # 0   1 
+ # 57 101 
+
+summary(factor(CB.extant$cant_share))
+  # 0   1 
+# 138  20 
+
+
+CB.extant$alive <- rowSums(cbind(CB.extant$data_received, CB.extant$cant_share))
+summary(factor(CB.extant$alive))
+#  0   1 
+# 37 121
+
+al1 <- glm(alive ~ age, data = CB.extant, family = "binomial")
+summary(al1)
+
+newdata.a <- data.frame(age = seq(2, 22, 0.1))
+newdata.a$phat <- predict(al1, newdata.a, type = "response")
+newdata.a <- cbind(newdata.a, predict(al1, newdata.a, type = "response", se.fit = TRUE))
+
+newdata.a <- within(newdata.a, {
+  LL <- fit - 1.96*se.fit
+  UL <- fit + 1.96*se.fit
+})
+
+
+# remember to do 1-pred.props.a in the figure
+props.a <- tapply(CB.extant$alive, factor(CB.extant$age), mean)
+
+pred.props.a <- data.frame(ages = seq(2, 22, 2), props.a = props.a)
+```
+
+
+```{r resplot, echo = FALSE, fig.height = 5, fig.width = 5}
+ ggplot(newdata.a, aes(x = age, y = fit)) +
+  geom_ribbon(aes(ymin = LL, ymax = UL), alpha = 0.25) +
+  geom_line(size = 1) + ylim(0, 1) +
+  labs(x = "age of paper (years)", y = "P(data extant|useful response)", title = "D") +
+  geom_point(aes(x = ages, y = props.a), data = pred.props.a, size = 2, col = "red") +
+  theme_bw()+ theme(axis.title=element_text(size=18), axis.text = element_text(size =18))
+```
+
+]]
+
+.footnote.f5[
+Timothy H.Vines, Arianne Y.K. Albert, Rose L.Andrew, Florence Débarre, Dan G.Bock, Michelle T.Franklin, Kimberly J. Gilbert, Jean-Sébastien Moore, Sébastien Renaut, Diana J.Rennison. 2009. “The Availability of Research Data Declines Rapidly with Article Age.” Current Biology. 24 (1): 94–97.
+]
+--
+
+* Úrelt tölvupóstfang <i class="fas fa-at"></i> og úreldur tölvubúnaður - helstu ástæður
+![](https://p1.pxfuel.com/preview/304/776/16/isolated-floppy-file-save.jpg)
+--
+
