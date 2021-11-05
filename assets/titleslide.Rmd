@@ -41,7 +41,7 @@ Presenter: *`r rmarkdown::metadata$author`*
 
 `r rmarkdown::metadata$department`
 
-<i class="fas fa-envelope"></i>  `r rmarkdown::metadata$email` &nbsp;&nbsp;<i class="fab fa-twitter"></i> @statsgen
+
 
 <i class="fas fa-calendar-alt"></i> `r rmarkdown::metadata$date`
 
