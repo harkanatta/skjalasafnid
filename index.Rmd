@@ -170,7 +170,7 @@ Timothy H.Vines, Arianne Y.K. Albert, Rose L.Andrew, Florence Débarre, Dan G.Bo
 
 ```{r, include = FALSE}
 #the below are needed for plotting Figure 1A
-read.table("docs/vines2014/CurrentBiologyData.txt", header = T)
+CB.dat <- read.table("docs/vines2014/CurrentBiologyData.txt", header = T)
 CB.dat$age <- 2013 - CB.dat$year
 CB.dat$email <- replace(CB.dat$no_emails_worked, which(CB.dat$no_emails_worked == 0), "yes")
 CB.dat$email <- replace(CB.dat$email, which(CB.dat$no_emails_worked == 1), "no")

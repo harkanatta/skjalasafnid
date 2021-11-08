@@ -1,10 +1,25 @@
 tafla <- read.csv("docs/tedersoo2021/tafla.csv")
-
+library(plyr)
 tafla %>% 
   ddply(.(author_familiarity,data_availability_from_corresponding_author),summarise,N=table(data_availability_from_corresponding_author))
 
-tafla %>% 
-  ddply(.(tafla$data_availability_final,data_availability_from_corresponding_author),summarise,N=table(data_availability_from_corresponding_author))
+tafla[tafla$data_availability_final=='none',] %>% 
+  ddply(.(data_availability_initial, discipline,data_availability_final, reason_for_decline),summarise,N=table(reason_for_decline))
+
+reason <- tafla[tafla$data_availability_final!='full',] %>% 
+  ddply(.(discipline,reason_for_decline),summarise,N=table(reason_for_decline))
+
+
+reason <- tafla[tafla$data_availability_final=='none',] %>% 
+  ddply(.(discipline, reason_for_decline),summarise,N=table(reason_for_decline))
+
+reason <- tafla %>% 
+  ddply(.(discipline, data_availability_initial, reason_for_decline),summarise,N=table(reason_for_decline))
+
+sum(reason$N[grep("agreement|privacy",reason$reason_for_decline)])
+sum(reason$N[grep("time",reason$reason_for_decline)])
+sum(reason$N[grep("lost",reason$reason_for_decline)])
+
 
 
 library(networkD3)
@@ -81,3 +96,211 @@ if (knitr::is_html_output()) {
   sn
 }
 ```
+
+
+
+
+
+
+
+discipline data_availability_initial  N
+1 Psychology                      full 35
+2 Psychology                      none 56
+3 Psychology                   partial  3
+
+discipline data_availability_initial data_availability_from_corresponding_author  N
+1 Psychology                      full                                             35
+2 Psychology                      none                                    declined 16
+3 Psychology                      none                                     ignored 19
+4 Psychology                      none                                    obtained 21
+5 Psychology                   partial                                    obtained  3
+
+discipline data_availability_initial data_availability_from_corresponding_author data_availability_final  N
+1 Psychology                      full                                                                full 35
+2 Psychology                      none                                    declined                    none 14
+3 Psychology                      none                                    declined                 partial  2
+4 Psychology                      none                                     ignored                    none 19
+5 Psychology                      none                                    obtained                    full 20
+6 Psychology                      none                                    obtained                 partial  1
+7 Psychology                   partial                                    obtained                    full  3
+
+discipline data_availability_initial data_availability_from_corresponding_author data_availability_final           reason_for_decline  N
+1  Psychology                      full                                                                full                              35
+2  Psychology                      none                                    declined                    none                    data_lost  2
+3  Psychology                      none                                    declined                    none data_protected_by_agreements  2
+4  Psychology                      none                                    declined                    none            no_time_to_search  3
+5  Psychology                      none                                    declined                    none                not_specified  1
+6  Psychology                      none                                    declined                    none                 other:_moved  2
+7  Psychology                      none                                    declined                    none                      privacy  2
+8  Psychology                      none                                    declined                    none       privacy,big_data_files  2
+9  Psychology                      none                                    declined                 partial                      no_time  2
+10 Psychology                      none                                     ignored                    none                              19
+11 Psychology                      none                                    obtained                    full                              20
+12 Psychology                      none                                    obtained                 partial                               1
+13 Psychology                   partial                                    obtained                    full                               3
+
+
+
+
+
+
+
+
+
+
+rass <- tafla %>% 
+  select(discipline, 
+         data_availability_initial,
+         data_availability_from_corresponding_author,
+         data_availability_final,
+         period_of_publication,
+         reason_for_decline)
+
+tafla$period_of_publication
+
+
+
+rass <- tafla %>% 
+  ddply(.(discipline, 
+          data_availability_initial,
+          data_availability_from_corresponding_author,
+          data_availability_final,
+          period_of_publication,
+          reason_for_decline
+  ),
+  summarise,N=table(discipline))
+
+library(ggalluvial)
+ggplot(rass,
+       aes(axis1 = discipline, axis2 = data_availability_final)) +
+  geom_alluvium(aes(fill = data_availability_final), width = 1/12) +
+  geom_stratum(width = 1/12, fill = "black", color = "grey") +
+  geom_label(stat = "stratum", aes(label = after_stat(stratum))) +
+  scale_x_discrete(limits = c("discipline", "data_availability_final"), expand = c(.05, .05)) +
+  scale_fill_brewer(type = "qual", palette = "Set1") +
+  ggtitle("gagnaheimt")
+
+
+
+
+discipline data_availability_initial data_availability_from_corresponding_author data_availability_final                  reason_for_decline  N
+1 Biomaterials_and_biotechnology                      full                                                                n.a.                                     65
+2 Biomaterials_and_biotechnology                      none                                                                n.a.                                     14
+3 Biomaterials_and_biotechnology                   partial                                                                n.a.                                     21
+4                        Ecology                      full                                                                full                                     65
+5                        Ecology                      none                                    declined                    none no_time_to_search,purpose_not_given  1
+6                        Ecology                      none                                    declined                    none                       not_specified  1
+
+
+ggplot(rass,
+       aes(y = N, axis1 = data_availability_initial, axis2 = discipline)) +
+  geom_alluvium(aes(fill = data_availability_final), width = 1/12) +
+  geom_stratum(width = 1/12, fill = "black", color = "grey") +
+  geom_label(stat = "stratum", aes(label = after_stat(stratum))) +
+  scale_x_discrete(limits = c("Gender", "Dept"), expand = c(.05, .05)) +
+  scale_fill_brewer(type = "qual", palette = "Set1") +
+  ggtitle("UC Berkeley admissions and rejections, by sex and department")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+library(ggsankey)
+library(dplyr)
+library(ggplot2)
+
+df <- mtcars %>%
+  make_long(cyl, vs, am, gear, carb)
+
+rass <- tafla %>% 
+  select(discipline, 
+         data_availability_initial,
+         data_availability_from_corresponding_author,
+         data_availability_final,
+         period_of_publication,
+         reason_for_decline) %>% 
+    ddply(.(discipline,data_availability_initial),summarize,N=table(discipline)) #%>% 
+  #pivot_wider(names_from = data_availability_initial,values_from = N)
+
+
+ggplot(rass,
+       aes(y=N, axis1 = discipline, axis2 = data_availability_initial)) +
+  geom_alluvium(aes(fill = data_availability_initial), width = 1/12) +
+  geom_stratum(width = 1/12, fill = "black", color = "grey") +
+  geom_label(stat = "stratum", aes(label = after_stat(stratum))) +
+  scale_x_discrete(limits = c("discipline", "data_availability_final"), expand = c(.05, .05)) +
+  scale_fill_brewer(type = "qual", palette = "Set1") +
+  ggtitle("") +
+  theme_void()
+
+rass <- tafla %>% 
+  select(discipline, 
+         data_availability_initial,
+         data_availability_from_corresponding_author,
+         data_availability_final,
+         period_of_publication,
+         reason_for_decline) %>% 
+  ddply(.(discipline,data_availability_final),summarize,N=table(discipline)) #%>% 
+#pivot_wider(names_from = data_availability_initial,values_from = N)
+rass$data_availability_final <- stringr::str_replace(rass$data_availability_final, 'n.a.','full')
+
+ggplot(rass,
+       aes(y=N, axis1 = discipline, axis2 = data_availability_final)) +
+  geom_alluvium(aes(fill = data_availability_final), width = 1/12) +
+  geom_stratum(width = 1/12, fill = "black", color = "grey") +
+  geom_label(stat = "stratum", aes(label = after_stat(stratum))) +
+  scale_x_discrete(limits = c("discipline", "data_availability_final"), expand = c(.05, .05)) +
+  scale_fill_brewer(type = "qual", palette = "Set1") +
+  ggtitle("") +
+  theme_void()
+
+rass <- tafla 
+rass$data_availability_final <- stringr::str_replace(rass$data_availability_final, 'n.a.','full')
+rass <- rass%>% 
+  filter(reason_for_decline!="") %>% 
+  select(discipline, 
+         data_availability_initial,
+         data_availability_from_corresponding_author,
+         data_availability_final,
+         period_of_publication,
+         reason_for_decline) %>% 
+  filter(data_availability_final!='full') %>% 
+  ddply(.(discipline,data_availability_final,reason_for_decline),summarize,N=table(discipline))
+
+
+rass$nyr <- rass$N
+rass$nyr[grep("agreement|privacy",rass$reason_for_decline)] <- "agreement"
+rass$nyr[grep("time",rass$reason_for_decline)] <- "no time"
+rass$nyr[grep("lost",rass$reason_for_decline)] <- "lost"
+rass$nyr[grep("[:alpha:]",rass$nyr, invert = T)] <- "annað"
+
+library(harrypotter)
+pal <- hp(n = 3, house = "NewtScamander")
+
+ggplot(rass,
+       aes(y=N, axis1 = discipline, axis2 = data_availability_final, axis3 = nyr)) +
+  geom_alluvium(aes(fill = nyr), width = 1/12,show.legend = F, knot.pos = .4, alpha =.7) +
+  geom_stratum(width = 1/12, fill = "black", color = "grey") +
+    geom_label(stat = "stratum", aes(label = after_stat(stratum))) +
+  scale_x_discrete(limits = c("discipline", "data_availability_final"), expand = c(.05, .05)) +
+  scale_fill_manual(values = pal) +
+  scale_color_manual(values = pal) +
+  labs(title = "ástæður", subtitle = "ástæður fyrir neitun", caption = "Tedersoo 2021") +
+  theme_minimal()
