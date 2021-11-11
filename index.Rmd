@@ -368,3 +368,6 @@ Timothy H.Vines, Arianne Y.K. Albert, Rose L.Andrew, Florence Débarre, Dan G.Bo
 * Úrelt tölvupóstfang <i class="fas fa-at"></i> og úreldur tölvubúnaður - helstu ástæður
 ![](https://p1.pxfuel.com/preview/304/776/16/isolated-floppy-file-save.jpg)
 ---
+
+background-image: url("myndir/reason.png")
+background-size: contain
