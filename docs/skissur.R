@@ -331,3 +331,9 @@ ggplot(rass,
         plot.title = element_text(size = 16, face = 'bold'))
 
 ggsave("myndir/reason.png",height = 7,width=12)
+
+
+
+https://corybrunson.github.io/ggalluvial/reference/alluvial-data.html
+
+
