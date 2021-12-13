@@ -337,3 +337,77 @@ ggsave("myndir/reason.png",height = 7,width=12)
 https://corybrunson.github.io/ggalluvial/reference/alluvial-data.html
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+library(tidyr)
+library(dplyr)
+library(networkD3)
+
+tafla <- read.csv("docs/tedersoo2021/tafla.csv")
+library(plyr)
+library(tidyverse)
+rass <- tafla 
+rass$data_availability_final <- stringr::str_replace(rass$data_availability_final, 'n.a.','full')
+rass <- rass%>% 
+  #filter(reason_for_decline!="",
+  #       data_availability_final!='full') %>% 
+  select(discipline, 
+         data_availability_initial,
+         data_availability_from_corresponding_author,
+         data_availability_final,
+         period_of_publication,
+         reason_for_decline) %>% 
+  ddply(.(discipline,data_availability_final,reason_for_decline),summarize,N=table(discipline))
+
+
+rass$nyr <- rass$N
+rass$nyr[grep("agreement|privacy",rass$reason_for_decline)] <- "privacy"
+rass$nyr[grep("time",rass$reason_for_decline)] <- "no time"
+rass$nyr[grep("lost",rass$reason_for_decline)] <- "lost"
+rass$nyr[grep("[:digit:]",rass$nyr, invert = T)] <- "other"
+rass$discipline[grep("Materials_for_Energy_and_Catalysis",rass$discipline)] <- "MEC"
+rass$discipline[grep("Social_sciences",rass$discipline)] <- "Social\nsciences"
+
+rass$nyr <-  as.character(rass$nyr)
+
+links <-
+  rass[,-c(3,4)] %>% 
+  mutate(row = row_number()) %>%  # add a row id
+  pivot_longer(-row, names_to = "col", values_to = "source") %>%  # gather all columns
+  mutate(col = match(col, names(df))) %>%  # convert col names to col ids
+  #mutate(source = paste0(source, '_', col)) %>%  # add col id to node names
+  group_by(row) %>%
+  mutate(target = lead(source, order_by = col)) %>%  # get target from following node in row
+  ungroup() %>% 
+  filter(!is.na(target)) %>%  # remove links from last column in original data
+  group_by(source, target) %>% 
+  summarise(value = n(), .groups = "drop")  # aggregate and count similar links
+
+# create nodes data frame from unque nodes found in links data frame
+nodes <- data.frame(id = unique(c(links$source, links$target)),
+                    stringsAsFactors = FALSE)
+# remove column id from node names
+nodes$name <- sub('_[0-9]*$', '', nodes$id)
+
+# create node ids in links data to the 0-based index of the nodes in the nodes data frame
+links$source_id <- match(links$source, nodes$id) - 1
+links$target_id <- match(links$target, nodes$id) - 1
+
+sankeyNetwork(Links = links, Nodes = nodes, Source = 'source_id',
+              Target = 'target_id', Value = 'value', NodeID = 'name')
