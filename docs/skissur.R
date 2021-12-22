@@ -250,6 +250,8 @@ ggplot(rass,
   ggtitle("") +
   theme_void()
 
+###########################
+
 rass <- tafla %>% 
   select(discipline, 
          data_availability_initial,
@@ -263,44 +265,149 @@ rass$data_availability_final <- stringr::str_replace(rass$data_availability_fina
 
 ggplot(rass,
        aes(y=N, axis1 = discipline, axis2 = data_availability_final)) +
-  geom_alluvium(aes(fill = data_availability_final), width = 1/12) +
+  geom_alluvium(aes(fill = data_availability_final), width = 1/12,show.legend = F, knot.pos = .4, alpha =.7) +
   geom_stratum(width = 1/12, fill = "black", color = "grey") +
   geom_label(stat = "stratum", aes(label = after_stat(stratum))) +
-  scale_x_discrete(limits = c("discipline", "data_availability_final"), expand = c(.05, .05)) +
-  scale_fill_brewer(type = "qual", palette = "Set1") +
-  ggtitle("") +
-  theme_void()
+  scale_x_discrete(limits = c("Discipline", "Data\n availability"), expand = c(.05, .05)) +
+  scale_fill_manual(values = pal) +
+  scale_color_manual(values = pal) +
+  labs(title = "ástæður", subtitle = "ástæður fyrir neitun", caption = "Tedersoo 2021") +
+  theme_minimal() +
+  theme(panel.grid = element_blank(),
+        axis.title.y = element_blank(),
+        axis.ticks.y = element_line(size = .7),
+        axis.text.y = element_text(face = 'bold'),
+        axis.text.x = element_text(size = 14, colour = 'black', face = 'bold', margin = margin(t=0,r=0,b=5,l=0)),
+        axis.line.y = element_line(colour = 'black', size = .7),
+        plot.title = element_text(size = 16, face = 'bold'))
 
+#######################
+tafla <- read.csv("docs/tedersoo2021/tafla.csv")
+library(plyr)
+library(tidyverse)
 rass <- tafla 
 rass$data_availability_final <- stringr::str_replace(rass$data_availability_final, 'n.a.','full')
 rass <- rass%>% 
-  filter(reason_for_decline!="") %>% 
+  filter(reason_for_decline!="",
+         data_availability_final!='full') %>% 
   select(discipline, 
          data_availability_initial,
          data_availability_from_corresponding_author,
          data_availability_final,
          period_of_publication,
          reason_for_decline) %>% 
-  filter(data_availability_final!='full') %>% 
   ddply(.(discipline,data_availability_final,reason_for_decline),summarize,N=table(discipline))
 
 
 rass$nyr <- rass$N
-rass$nyr[grep("agreement|privacy",rass$reason_for_decline)] <- "agreement"
+rass$nyr[grep("agreement|privacy",rass$reason_for_decline)] <- "privacy"
 rass$nyr[grep("time",rass$reason_for_decline)] <- "no time"
 rass$nyr[grep("lost",rass$reason_for_decline)] <- "lost"
-rass$nyr[grep("[:alpha:]",rass$nyr, invert = T)] <- "annað"
+rass$nyr[grep("[:digit:]",rass$nyr, invert = T)] <- "other"
+rass$discipline[grep("Materials_for_Energy_and_Catalysis",rass$discipline)] <- "MEC"
+rass$discipline[grep("Social_sciences",rass$discipline)] <- "Social\nsciences"
+
 
 library(harrypotter)
-pal <- hp(n = 3, house = "NewtScamander")
+pal <- hp(n = 4, house = "NewtScamander")
 
+library(ggalluvial)
 ggplot(rass,
-       aes(y=N, axis1 = discipline, axis2 = data_availability_final, axis3 = nyr)) +
-  geom_alluvium(aes(fill = nyr), width = 1/12,show.legend = F, knot.pos = .4, alpha =.7) +
+       aes(y=N, axis1 = discipline, axis2 = nyr)) +
+  geom_alluvium(aes(fill = nyr), width = 1/12,show.legend = F, knot.pos = .4, alpha =.7, size = 16) +
   geom_stratum(width = 1/12, fill = "black", color = "grey") +
     geom_label(stat = "stratum", aes(label = after_stat(stratum))) +
-  scale_x_discrete(limits = c("discipline", "data_availability_final"), expand = c(.05, .05)) +
+  scale_x_discrete(limits = c("Fög", "Ástæður"), expand = c(.05, .05)) +
   scale_fill_manual(values = pal) +
   scale_color_manual(values = pal) +
-  labs(title = "ástæður", subtitle = "ástæður fyrir neitun", caption = "Tedersoo 2021") +
-  theme_minimal()
+  labs(title = "Ástæður", subtitle = "fyrir neitun á afhendingu gagna", caption = "Tedersoo 2021") +
+  theme_minimal() +
+  theme(panel.grid = element_blank(),
+        axis.title.y = element_blank(),
+        axis.ticks.y = element_line(size = .7),
+        axis.text.y = element_text(face = 'bold'),
+        axis.text.x = element_text(size = 14, colour = 'black', face = 'bold', margin = margin(t=0,r=0,b=5,l=0)),
+        axis.line.y = element_line(colour = 'black', size = .7),
+        plot.title = element_text(size = 16, face = 'bold'))
+
+ggsave("myndir/reason.png",height = 7,width=12)
+
+
+
+https://corybrunson.github.io/ggalluvial/reference/alluvial-data.html
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+library(tidyr)
+library(dplyr)
+library(networkD3)
+
+tafla <- read.csv("docs/tedersoo2021/tafla.csv")
+library(plyr)
+library(tidyverse)
+rass <- tafla 
+rass$data_availability_final <- stringr::str_replace(rass$data_availability_final, 'n.a.','full')
+rass <- rass%>% 
+  #filter(reason_for_decline!="",
+  #       data_availability_final!='full') %>% 
+  select(discipline, 
+         data_availability_initial,
+         data_availability_from_corresponding_author,
+         data_availability_final,
+         period_of_publication,
+         reason_for_decline) %>% 
+  ddply(.(discipline,data_availability_final,reason_for_decline),summarize,N=table(discipline))
+
+
+rass$nyr <- rass$N
+rass$nyr[grep("agreement|privacy",rass$reason_for_decline)] <- "privacy"
+rass$nyr[grep("time",rass$reason_for_decline)] <- "no time"
+rass$nyr[grep("lost",rass$reason_for_decline)] <- "lost"
+rass$nyr[grep("[:digit:]",rass$nyr, invert = T)] <- "other"
+rass$discipline[grep("Materials_for_Energy_and_Catalysis",rass$discipline)] <- "MEC"
+rass$discipline[grep("Social_sciences",rass$discipline)] <- "Social\nsciences"
+
+rass$nyr <-  as.character(rass$nyr)
+
+links <-
+  rass[,-c(3,4)] %>% 
+  mutate(row = row_number()) %>%  # add a row id
+  pivot_longer(-row, names_to = "col", values_to = "source") %>%  # gather all columns
+  mutate(col = match(col, names(df))) %>%  # convert col names to col ids
+  #mutate(source = paste0(source, '_', col)) %>%  # add col id to node names
+  group_by(row) %>%
+  mutate(target = lead(source, order_by = col)) %>%  # get target from following node in row
+  ungroup() %>% 
+  filter(!is.na(target)) %>%  # remove links from last column in original data
+  group_by(source, target) %>% 
+  summarise(value = n(), .groups = "drop")  # aggregate and count similar links
+
+# create nodes data frame from unque nodes found in links data frame
+nodes <- data.frame(id = unique(c(links$source, links$target)),
+                    stringsAsFactors = FALSE)
+# remove column id from node names
+nodes$name <- sub('_[0-9]*$', '', nodes$id)
+
+# create node ids in links data to the 0-based index of the nodes in the nodes data frame
+links$source_id <- match(links$source, nodes$id) - 1
+links$target_id <- match(links$target, nodes$id) - 1
+
+sankeyNetwork(Links = links, Nodes = nodes, Source = 'source_id',
+              Target = 'target_id', Value = 'value', NodeID = 'name')
