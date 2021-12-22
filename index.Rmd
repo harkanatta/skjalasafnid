@@ -5,7 +5,7 @@ email: "valtyr@nnv.is"
 date: "einhverntíman á árunum, 2021-22"
 length: "10+5 minutes (including Q+A)"
 pdflink: "Valtyr_erindi.pdf"
-department: "Náttúrustofa Norðurlands vestra"
+department: "Gagnabjörgun"
 output:
   xaringan::moon_reader:
     css:
@@ -300,6 +300,10 @@ Timothy H.Vines, Arianne Y.K. Albert, Rose L.Andrew, Florence Débarre, Dan G.Bo
 
     * Öllu úr Náttúrufræðingnum?
 {{content}}
+--
+
+    * Háskólar og aðrar rannsóknastofnanir?
+{{content}}
 
 ???
 Mikið af skýrslum hjá náttúrustofunum og öðrum rannsóknastofnunum. Mikið af óútgefnum gögnum sem ekkert hefur verið gert við.
@@ -329,8 +333,17 @@ Mikið af skýrslum hjá náttúrustofunum og öðrum rannsóknastofnunum. Miki�
     {{content}}
 --
 
+    * Hvern skal spyrja?
+    {{content}}
+--
+
     * Hvaða aðferðum á að beita?
     {{content}}
+
+--
+
+* Úrelt tölvupóstfang <i class="fas fa-at"></i> og úreldur tölvubúnaður - helstu ástæður
+![](https://p1.pxfuel.com/preview/304/776/16/isolated-floppy-file-save.jpg)
 
 ???
 Ef gögnin eru send masnni eða finnast á netinu í formi skýrslna eða greina eins og t.d. hjá Náttúrufræðingnum þá má sækja þau með tímafrekum hætti. Hvort sem þau eru OCR-lesin eða ekki.
@@ -347,4 +360,197 @@ class: transition
 
 # Aðferðir <br>.yellow[Úrvinnsla og endurröðun]
 
+---
+
+layout: true
+
+# Drawing faces .circle[5] .yellow[*Object-oriented programming*] style
+
+.info-box.w-70[
+**Object-oriented programming** (OOP) is a programming paradigm based on objects that have certain attributes and behaviours
+]
+
+* Rethink everything as an **_object_**
+
+---
+
+---
+
+.flex.h-100[
+.w-30.pr3[
+```{r face1-code}
+library(portrait)
+f <- face() #<<
+str(f)
+```
+
+]
+.w-30.pr3[
+.output-box.w-100[
+```{r face1, fig.height = 2, fig.width = 2}
+print(f)
+```
+]]
+.w-40[
+.summary-box.w-100[
+* Function creates an object that contains a "standard" smiley face
+* Only draws the face upon print
+]
+]
+]
+
+---
+
+.flex.h-100[
+.w-30.pr3[
+```{r face2-code}
+library(portrait)
+f <- face() +
+  cat_shape() #<<
+str(f)
+```
+
+]
+.w-30.pr3[
+.output-box.w-100[
+```{r face2, fig.width = 2, fig.height = 2}
+print(f)
+```
+]]
+.w-40[
+.summary-box.w-100[
+* .black[`cat_shape`] function modifies the shape information within the object
+]
+]
+]
+
+---
+
+
+.flex.h-100[
+.w-30.pr3[
+```{r face3-code}
+library(portrait)
+f <- face() +
+  cat_shape() +
+  cat_eyes() #<<
+str(f)
+```
+
+
+
+
+]
+.w-30.pr3[
+.output-box.w-100[
+```{r face3, fig.width = 2, fig.height = 2}
+print(f)
+```
+]]
+.w-40[
+.summary-box.w-100[
+* .black[`cat_eyes`] function modifies the eye information within the object
+]
+]
+]
+
+---
+
+
+.flex.h-100[
+.w-30.pr3[
+```{r face4-code}
+library(portrait)
+f <- face() +
+  cat_shape() +
+  cat_eyes() +
+  cat_nose() #<<
+str(f)
+```
+
+
+
+
+]
+.w-30.pr3[
+.output-box.w-100[
+```{r face4, fig.width = 2, fig.height = 2}
+print(f)
+```
+]]
+.w-40[
+.summary-box.w-100[
+* .black[`cat_nose`] function adds nose information
+]
+]]
+
+
+---
+
+
+.flex.h-100[
+.w-30.pr3[
+```{r face5-code}
+library(portrait)
+f <- face() +
+  cat_shape() +
+  cat_eyes() +
+  cat_nose() +
+  cat_whiskers() #<<
+str(f)
+```
+
+
+
+]
+.w-30.pr3[
+.output-box.w-100[
+```{r face5, fig.width = 2, fig.height = 2}
+print(f)
+```
+]
+]
+.w-40[
+.summary-box.w-100[
+* .black[`cat_whiskers`] function adds whiskers information
+]
+
+]
+]
+
+---
+
+
+.flex.h-100[
+.w-30.pr3[
+```{r face6-code}
+library(portrait)
+f <- face() +
+  dog_shape() + #<<
+  cat_eyes(fill = "red") + #<<
+  cat_nose() +
+  cat_whiskers()
+str(f)
+```
+
+
+
+]
+.w-30.pr3[
+.output-box.w-100[
+```{r face6, fig.width = 2, fig.height = 2}
+print(f)
+```
+]
+]
+.w-40[
+.summary-box.w-100[
+* Mix-and-match functions to make other faces
+* The functions are modular so can be replaced by user's own functions
+]
+
+]
+]
+
+---
 
