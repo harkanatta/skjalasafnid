@@ -75,7 +75,7 @@ library(ggplot2)
 basename <- ifelse(exists("basename"), basename, "slide")
 pdflink <- rmarkdown::metadata$pdflink
 titlebgimg <- ifelse(is.null(rmarkdown::metadata$titlebgimg),
-                     "myndir/bg-01.png",
+                     "myndir/bg-02.png",
                      rmarkdown::metadata$titlebgimg)
 ```
 
@@ -301,6 +301,8 @@ Timothy H.Vines, Arianne Y.K. Albert, Rose L.Andrew, Florence Débarre, Dan G.Bo
     * Öllu úr Náttúrufræðingnum?
 {{content}}
 
+???
+Mikið af skýrslum hjá náttúrustofunum og öðrum rannsóknastofnunum. Mikið af óútgefnum gögnum sem ekkert hefur verið gert við.
 ---
 
 # .yellow[Gagnabjörgun] <i class="fas fa-file-alt"></i> Hvað er til ráða? .r-button[<i class="fab fa-r-project"></i>]
@@ -311,7 +313,7 @@ Timothy H.Vines, Arianne Y.K. Albert, Rose L.Andrew, Florence Débarre, Dan G.Bo
 .w-60.pr3[
 .breytt-output-box.w-100[
 * **Hvernig er farið að því?**: 
-    * Gögnum <span class="red">*náttúrustofanna*</span>?
+    
 {{content}}
 ]
 ]
@@ -330,44 +332,19 @@ Timothy H.Vines, Arianne Y.K. Albert, Rose L.Andrew, Florence Débarre, Dan G.Bo
     * Hvaða aðferðum á að beita?
     {{content}}
 
-
+???
+Ef gögnin eru send masnni eða finnast á netinu í formi skýrslna eða greina eins og t.d. hjá Náttúrufræðingnum þá má sækja þau með tímafrekum hætti. Hvort sem þau eru OCR-lesin eða ekki.
 ---
 
-
-# .yellow[Endurheimt gagna] <i class="fas fa-file-alt"></i> Könnun á tilvist gagna úr birtum greinum 
-
-.flex.h-100[
-.w-60[
-
-*  516 greinar - útgefnar á milli 1991 og 2011
-*  Líkur á tilvist gagna minnkuðu um 17% á ári
-
-
-{{content}}
-
-]
-.w-40[
-
-
-```{r Bresplot, echo = FALSE, fig.height = 5, fig.width = 5}
- ggplot(newdata.a, aes(x = age, y = fit)) +
-  geom_ribbon(aes(ymin = LL, ymax = UL), alpha = 0.25) +
-  geom_line(size = 1) + ylim(0, 1) +
-  labs(x = "age of paper (years)", y = "P(data extant|useful response)", title = "D") +
-  geom_point(aes(x = ages, y = props.a), data = pred.props.a, size = 2, col = "red") +
-  theme_bw()+ theme(axis.title=element_text(size=18), axis.text = element_text(size =18))
-```
-
-]]
-
-.footnote.f5[
-Timothy H.Vines, Arianne Y.K. Albert, Rose L.Andrew, Florence Débarre, Dan G.Bock, Michelle T.Franklin, Kimberly J. Gilbert, Jean-Sébastien Moore, Sébastien Renaut, Diana J.Rennison. 2009. “The Availability of Research Data Declines Rapidly with Article Age.” Current Biology. 24 (1): 94–97.
-]
---
-
-* Úrelt tölvupóstfang <i class="fas fa-at"></i> og úreldur tölvubúnaður - helstu ástæður
-![](https://p1.pxfuel.com/preview/304/776/16/isolated-floppy-file-save.jpg)
----
 
 background-image: url("myndir/reason.png")
 background-size: contain
+
+---
+
+
+class: transition 
+
+# Aðferðir <br>.yellow[Úrvinnsla og endurröðun]
+
+
